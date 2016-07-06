@@ -1,0 +1,25 @@
+{
+  "name": "auth-request",
+  "version": "0.0.1",
+  "description": "Node util that supports request with authentication.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devxleo/auth-request.git"
+  },
+  "keywords": [
+    "http",
+    "request",
+    "basic auth",
+    "digest auth"
+  ],
+  "author": "devxleo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/devxleo/auth-request/issues"
+  },
+  "homepage": "https://github.com/devxleo/auth-request#readme"
+}
