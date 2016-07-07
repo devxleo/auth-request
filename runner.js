@@ -1,45 +1,41 @@
 /**
  * A task runner used to organize http request steps.
+ *
+ * @param {object} tasks
+ * @param {function} tasks.formatParam
+ * @param {function} tasks.makeRequest
+ * @param {function} tasks.formatBasicAuthParam
+ * @param {function} tasks.formatDigestAuthParam
  */
-function TaskRunner(tasks) {
-	this.tasks = tasks;
-	this.context = {
-		start: false,
-		index: 0,
-		results: [],
-		error: null
-	};
+function Runner(tasks) {
+	this.formatParam = tasks.formatParam;
+	this.formatBasicAuthParam = tasks.formatBasicAuthParam;
+	this.formatDigestAuthParam = tasks.formatDigestAuthParam;
+	this.makeRequest = tasks.makeRequest;
 }
 
-TaskRunner.prototype.run = function (callback) {
-	if (this.tasks.length === 0) {
-		callback(null, null);
-		return;
-	}
-	
-	this.context.start = true;
-	
+Runner.prototype.run = function (options, callback) {
 	var self = this;
-	var next = function (err, result) {
-		if (err) {
-			self.context.error = err;
-			self.context.start = false;
-			callback(err, null);
-			return;
-		}
-		
-		self.context.results[self.context.index] = result;
-		if (self.context.index + 1 === self.tasks.length || self.context.requestResult) {
-			self.context.start = false;
-			callback(null, self.context.requestResult);
-			return;
-		}
-		
-		self.context.index += 1;
-		self.tasks[self.context.index](self.context, next);
-	}
-	
-	this.tasks[this.context.index](this.context, next);
+	this.formatParam(options, function (err, param) {
+		if (err) return callback(err);
+		self.makeRequest(options, param, function (err, result) {
+			if (err) return callback(err);
+			if (result.status !== 401) return callback(null, result);
+			if (result.data.authType === 'Basic') {
+				return self.formatBasicAuthParam(options, param, result.data, function (err, param) {
+					if (err) return callback(err);
+					self.makeRequest(options, param, callback);
+				});
+			}
+			if (result.data.authType === 'Digest') {
+				return self.formatDigestAuthParam(options, param, result.data, function (err, param) {
+					if (err) return callback(err);
+					self.makeRequest(options, param, callback);
+				});
+			}
+			callback(null, result);
+		});
+	});
 }
 
-module.exports = TaskRunner;
+module.exports = Runner;

@@ -1,8 +1,8 @@
 var Runner = require('./runner');
 var makeRequest = require('./tasks/makeRequest');
-var formatRequestOption = require('./tasks/formatRequestOption');
-var formatBasicAuthOption = require('./tasks/formatBasicAuthOption');
-var formatDigestAuthOption = require('./tasks/formatDigestAuthOption');
+var formatParam = require('./tasks/formatParam');
+var formatBasicAuthParam = require('./tasks/formatBasicAuthParam');
+var formatDigestAuthParam = require('./tasks/formatDigestAuthParam');
 
 /**
  * @param {object} options
@@ -17,18 +17,14 @@ var formatDigestAuthOption = require('./tasks/formatDigestAuthOption');
  * @param {string} options.password
  */
 function request(options, callback) {
-	var runner = new Runner([
-		formatRequestOption(options),
-		makeRequest(options),
-		formatBasicAuthOption(options),
-		formatDigestAuthOption(options),
-		makeRequest(options)
-	]);
-	
-	runner.run(function (err, result) {
-		if (err) return callback(err);
-		callback (null, result);
+	var runner = new Runner({
+		makeRequest: makeRequest,
+		formatParam: formatParam,
+		formatBasicAuthParam: formatBasicAuthParam,
+		formatDigestAuthParam: formatDigestAuthParam
 	});
+	
+	runner.run(options, callback);
 }
 
 module.exports = request;
