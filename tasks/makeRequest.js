@@ -10,7 +10,6 @@ function makeRequest(options, param, callback) {
 		
 		if (statusCode === 401) {
 			var wwwAuth = res.headers['www-authenticate'];
-			console.log(wwwAuth);
 			return callback(null, {
 				status: statusCode,
 				data: parseAuthHeader(wwwAuth)
