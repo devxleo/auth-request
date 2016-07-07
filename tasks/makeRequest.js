@@ -3,17 +3,18 @@ var https = require('https');
 
 function makeRequest(options, param, callback) {
 	var r = options.scheme === 'https' ? https : http;
+	console.log(param);
 	
 	var req = r.request(param, function (res) {
-		var statusCode = req.statusCode;
+		var statusCode = res.statusCode;
 		
 		if (statusCode === 401) {
 			var wwwAuth = res.headers['www-authenticate'];
-			var authInfo = parseAuthHeader(wwwAuth);
-			if (authInfo.authType !== 'Basic' && authInfo.authType !== 'Digest') {
-				return callback(new Error('Unknow auth type'));
-			}
-			return callback(null, authInfo);
+			console.log(wwwAuth);
+			return callback(null, {
+				status: statusCode,
+				data: parseAuthHeader(wwwAuth)
+			});
 		}	
 		
 		var result = '';
@@ -49,6 +50,7 @@ function parseAuthHeader(str) {
 			result[match[1]] = match[2];
 		}
 	}
+	return result;
 }
 
 module.exports = makeRequest;

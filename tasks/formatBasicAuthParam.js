@@ -1,5 +1,8 @@
 function format(options, param, data, callback) {
-		param.auth = options.username + options.password;
+		if (!options.username || !options.password) {
+			return callback(new Error('Need basic auth info.'));
+		}
+		param.auth = options.username + ':' + options.password;
 		callback(null, param);
 }
 

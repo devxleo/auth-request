@@ -2,11 +2,17 @@ var crypto = require('crypto');
 
 function format(options, param, data, callback) {
 	
+	if (!options.username || !options.password) {
+		return callback(new Error('Need digest auth info.'));
+	}
+	
 	var realm = data.realm;
 	var qop = data.qop;
 	var nonce = data.nonce;
 	var username = options.username;
 	var password = options.password;
+	var method = param.method;
+	var path = param.path;
 	
 	// HA1=MD5(username:realm:password)
 	var ha1 = md5(`${username}:${realm}:${password}`);
